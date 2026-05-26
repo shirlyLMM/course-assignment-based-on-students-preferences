@@ -1,0 +1,44 @@
+============================================================
+COURSE ASSIGNMENT REPORT
+============================================================
+--- Input files ---
+  Students file : students_random.csv
+  Sessions file : sessions.csv
+
+Students          : 300
+Sessions          : 10
+Trials run        : 31
+Best total cost   : 349
+Unassigned        : 0
+
+--- Preference rank distribution (best assignment) ---
+  Rank  1:  270 students
+  Rank  2:   22 students
+  Rank  3:    3 students
+  Rank  4:    3 students
+  Rank  5:    0 students
+  Rank  6:    1 students
+  Rank  7:    0 students
+  Rank  8:    1 students
+  Rank  9:    0 students
+  Rank 10:    0 students
+
+--- Session utilisation (best assignment) ---
+  Course_1    :  30 / 30
+  Course_10   :  30 / 30
+  Course_2    :  30 / 30
+  Course_3    :  30 / 30
+  Course_4    :  30 / 30
+  Course_5    :  30 / 30
+  Course_6    :  30 / 30
+  Course_7    :  30 / 30
+  Course_8    :  30 / 30
+  Course_9    :  30 / 30
+
+--- Top assignments found ---
+  #1: total cost = 349
+  #2: total cost = 358
+  #3: total cost = 359
+  #4: total cost = 359
+  #5: total cost = 360
+============================================================
