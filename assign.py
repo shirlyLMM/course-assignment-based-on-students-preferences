@@ -295,11 +295,14 @@ def write_assignment_csv(path, best_assignment, students):
             })
 
 
-def write_report(path, top_assignments, students, session_capacities, num_trials_run):
+def write_report(path, top_assignments, students, session_capacities, num_trials_run,
+                 students_file=None, sessions_file=None):
     """
     Write a human-readable summary report to a text file.
 
     The report includes:
+      - Input file names (students_file, sessions_file) so the report is
+        self-contained and cannot be confused with results from other runs
       - Run parameters (student count, session count, trials run)
       - Best total cost and number of unassigned students
       - Preference rank distribution: how many students got rank 1, 2, 3, ...
@@ -313,6 +316,8 @@ def write_report(path, top_assignments, students, session_capacities, num_trials
     students           : list  Full student list.
     session_capacities : dict  { session_name: capacity }
     num_trials_run     : int   Actual number of trials completed.
+    students_file      : str   Path of the students input file (for the report header).
+    sessions_file      : str   Path of the sessions input file (for the report header).
     """
     best_assignment, best_cost = top_assignments[0]
     num_sessions = len(session_capacities)
@@ -339,6 +344,10 @@ def write_report(path, top_assignments, students, session_capacities, num_trials
     lines.append("=" * 60)
     lines.append("COURSE ASSIGNMENT REPORT")
     lines.append("=" * 60)
+    lines.append("--- Input files ---")
+    lines.append(f"  Students file : {students_file or '(not specified)'}")
+    lines.append(f"  Sessions file : {sessions_file or '(not specified)'}")
+    lines.append("")
     lines.append(f"Students          : {num_students}")
     lines.append(f"Sessions          : {num_sessions}")
     lines.append(f"Trials run        : {num_trials_run}")
@@ -370,7 +379,16 @@ def write_report(path, top_assignments, students, session_capacities, num_trials
 
 # Parse command-line arguments. All parameters have sensible defaults so the
 # program can be run with no arguments against the default input files.
+#
+# Output file naming convention (when --out-assignment / --out-report are omitted):
+#   The suffix is derived from the --students filename by stripping the leading
+#   "students_" prefix (if present) and the ".csv" extension.
+#   Examples:
+#     students_random.csv  →  assignment_random.csv  /  report_random.txt
+#     students_biased.csv  →  assignment_biased.csv  /  report_biased.txt
+#     foo.csv              →  assignment_foo.csv      /  report_foo.txt
 def parse_args():
+    import os
     p = argparse.ArgumentParser(description="Course assignment via randomized serial dictatorship")
     p.add_argument("--students",        default="students_biased.csv")
     p.add_argument("--sessions",        default="sessions.csv")
@@ -378,9 +396,24 @@ def parse_args():
     p.add_argument("--trials",          type=int, default=100)
     p.add_argument("--top",             type=int, default=5)
     p.add_argument("--patience",        type=int, default=20)
-    p.add_argument("--out-assignment",  default="assignment.csv")
-    p.add_argument("--out-report",      default="report.txt")
-    return p.parse_args()
+    p.add_argument("--out-assignment",  default=None,
+                   help="Output assignment CSV (default: derived from --students filename)")
+    p.add_argument("--out-report",      default=None,
+                   help="Output report TXT (default: derived from --students filename)")
+    args = p.parse_args()
+
+    # Derive output names from the students filename when not explicitly provided
+    if args.out_assignment is None or args.out_report is None:
+        basename = os.path.basename(args.students)          # e.g. "students_random.csv"
+        stem = os.path.splitext(basename)[0]                # e.g. "students_random"
+        # Strip the "students_" prefix to get just the scenario label
+        suffix = stem[len("students_"):] if stem.startswith("students_") else stem
+        if args.out_assignment is None:
+            args.out_assignment = f"assignment_{suffix}.csv"
+        if args.out_report is None:
+            args.out_report = f"report_{suffix}.txt"
+
+    return args
 
 
 # Orchestrate the full pipeline: load inputs → run trials → write outputs.
@@ -395,7 +428,10 @@ def main():
     )
     best_assignment, best_cost = top_assignments[0]
     write_assignment_csv(args.out_assignment, best_assignment, students)
-    write_report(args.out_report, top_assignments, students, session_capacities, trials_run)
+    write_report(
+        args.out_report, top_assignments, students, session_capacities, trials_run,
+        students_file=args.students, sessions_file=args.sessions,
+    )
     print(f"Done. Best cost: {best_cost}  |  Trials run: {trials_run}")
     print(f"Results written to {args.out_assignment} and {args.out_report}")
 
