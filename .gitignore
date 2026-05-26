@@ -1,0 +1,27 @@
+# -------------------------------------------------------
+# Generated output files — reproducible by running the
+# scripts, so no need to track them in version control.
+# -------------------------------------------------------
+
+# Assignment results
+assignment.csv
+assignment_random.csv
+assignment_biased.csv
+
+# Reports
+report.txt
+report_random.txt
+report_biased.txt
+
+# Old-format preference files (superseded by students_*.csv)
+preferences_random.csv
+preferences_biased.csv
+
+# -------------------------------------------------------
+# System / editor noise
+# -------------------------------------------------------
+.DS_Store
+__pycache__/
+*.pyc
+*.pyo
+.venv/
